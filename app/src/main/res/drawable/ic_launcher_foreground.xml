@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Sombra do Cartão -->
+    <path
+        android:fillColor="#44000000"
+        android:pathData="M 28 37 h 52 a 4 4 0 0 1 4 4 v 32 a 4 4 0 0 1 -4 4 h -52 a 4 4 0 0 1 -4 -4 v -32 a 4 4 0 0 1 4 -4 z" />
+
+    <!-- Corpo do Cartão Principal (Neon Green outline ou solid) -->
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M 28 34 h 52 a 4 4 0 0 1 4 4 v 32 a 4 4 0 0 1 -4 4 h -52 a 4 4 0 0 1 -4 -4 v -32 a 4 4 0 0 1 4 -4 z" />
+
+    <!-- Tarja Magnética Escura do Cartão -->
+    <path
+        android:fillColor="#090D14"
+        android:pathData="M 24 42 H 84 V 48 H 24 Z" />
+
+    <!-- Chip Inteligente Simulado -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 32 54 h 8 a 1 1 0 0 1 1 1 v 6 a 1 1 0 0 1 -1 1 h -8 a 1 1 0 0 1 -1 -1 v -6 a 1 1 0 0 1 1 -1 z" />
+
+    <!-- Linhas de Estilo decorativas do cartão -->
+    <path
+        android:fillColor="#80FFFFFF"
+        android:pathData="M 50 56 h 20 v 2 H 50 Z M 50 62 h 12 v 2 H 50 Z" />
+
+    <!-- Círculo de Destaque da Marca de Controle (Bottom-Right) -->
+    <path
+        android:fillColor="#2979FF"
+        android:pathData="M 74 66 m -12 0 a 12 12 0 1 1 24 0 a 12 12 0 1 1 -24 0" />
+
+    <!-- Símbolo do Visto / Checkmark Branco no Círculo -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 70 65 l 3 3 l 6 -6 l 1.5 1.5 l -7.5 7.5 l -4.5 -4.5 z" />
+
+</vector>

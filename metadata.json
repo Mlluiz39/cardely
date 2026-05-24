@@ -1,0 +1,6 @@
+{
+  "name": "Cardely",
+  "description": "Aplicativo de Controle Financeiro com Fatura Virtual e Comprovantes Inteligentes",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
