@@ -30,6 +30,7 @@ import com.example.ui.screens.AddTransactionDialog
 import com.example.ui.screens.CalendarScreen
 import com.example.ui.screens.CardsScreen
 import com.example.ui.screens.DashboardScreen
+import com.example.ui.screens.LoginScreen
 import com.example.ui.screens.TimelineScreen
 import com.example.ui.theme.MyApplicationTheme
 
@@ -46,7 +47,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                CardelyApp(viewModel)
+                val context = androidx.compose.ui.platform.LocalContext.current
+                val prefs = remember { context.getSharedPreferences("cardely_security_prefs", android.content.Context.MODE_PRIVATE) }
+                var isProtected by remember { mutableStateOf(prefs.getBoolean("is_protected", false)) }
+                
+                // Re-read when app comes to foreground or when status updates
+                val checkProtection = {
+                    isProtected = prefs.getBoolean("is_protected", false)
+                }
+                
+                var isUnlocked by remember(isProtected) { mutableStateOf(!isProtected) }
+
+                if (!isUnlocked) {
+                    LoginScreen(
+                        onUnlockSuccess = { isUnlocked = true }
+                    )
+                } else {
+                    CardelyApp(viewModel)
+                }
             }
         }
     }

@@ -4,6 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.data.local.CardEntity
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.squareup.moshi.JsonClass
 import com.example.data.local.TransactionEntity
 import com.example.data.repository.CardelyRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -250,7 +253,165 @@ class CardelyViewModel(private val repository: CardelyRepository) : ViewModel() 
     private fun isExpense(type: String): Boolean {
         return type == "DEBIT" || type == "PIX_SENT" || type == "CASH_EXPENSE" || type == "CREDIT" || type == "TRANSFER_SENT"
     }
+
+    // Moshi Instance for Backup
+    private val moshi = Moshi.Builder()
+        .addLast(KotlinJsonAdapterFactory())
+        .build()
+
+    fun exportBackup(): String {
+        return try {
+            val backup = CardelyBackup(cards.value, transactions.value)
+            val adapter = moshi.adapter(CardelyBackup::class.java)
+            adapter.indent("  ").toJson(backup)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+    }
+
+    fun importBackup(jsonStr: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val adapter = moshi.adapter(CardelyBackup::class.java)
+                val backup = adapter.fromJson(jsonStr)
+                if (backup != null) {
+                    repository.clearAllData()
+                    repository.insertCards(backup.cards)
+                    repository.insertTransactions(backup.transactions)
+                    onSuccess()
+                } else {
+                    onError("Formato de backup inválido.")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onError("Erro ao decodificar backup: \${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun clearAllUserData() {
+        viewModelScope.launch {
+            repository.clearAllData()
+        }
+    }
+
+    fun seedDemoData() {
+        viewModelScope.launch {
+            repository.clearAllData()
+
+            val maeCardId = repository.insertCard(
+                CardEntity(
+                    name = "Cartão da Mãe",
+                    brand = "Visa",
+                    totalLimit = 3000.0,
+                    closingDay = 5,
+                    dueDay = 12,
+                    colorHex = "#2196F3"
+                )
+            ).toInt()
+
+            val compCardId = repository.insertCard(
+                CardEntity(
+                    name = "Nubank Dividido",
+                    brand = "Mastercard",
+                    totalLimit = 5000.0,
+                    closingDay = 10,
+                    dueDay = 17,
+                    colorHex = "#9C27B0"
+                )
+            ).toInt()
+
+            val today = System.currentTimeMillis()
+            val yesterday = today - 24 * 60 * 60 * 1000L
+            val twoDaysAgo = today - 2 * 24 * 60 * 60 * 1000L
+
+            repository.insertTransaction(
+                TransactionEntity(
+                    title = "Ganhos Semanais Uber",
+                    amount = 1250.0,
+                    totalAmount = 1250.0,
+                    type = "PIX_RECEIVED",
+                    category = "Uber",
+                    timestamp = yesterday,
+                    isParcelado = false
+                )
+            )
+
+            repository.insertTransaction(
+                TransactionEntity(
+                    title = "Entregas iFood",
+                    amount = 450.0,
+                    totalAmount = 450.0,
+                    type = "CASH_INCOME",
+                    category = "iFood",
+                    timestamp = today,
+                    isParcelado = false
+                )
+            )
+
+            repository.insertTransaction(
+                TransactionEntity(
+                    title = "Posto Ipiranga",
+                    amount = 180.0,
+                    totalAmount = 180.0,
+                    type = "DEBIT",
+                    category = "Combustível",
+                    timestamp = today,
+                    isParcelado = false
+                )
+            )
+
+            repository.insertTransaction(
+                TransactionEntity(
+                    title = "Almoço Prato Feito",
+                    amount = 35.0,
+                    totalAmount = 35.0,
+                    type = "CASH_EXPENSE",
+                    category = "Alimentação",
+                    timestamp = today,
+                    isParcelado = false
+                )
+            )
+
+            repository.insertTransaction(
+                TransactionEntity(
+                    title = "Pneus AutoCenter",
+                    amount = 120.0,
+                    totalAmount = 720.0,
+                    type = "CREDIT",
+                    cardId = maeCardId,
+                    category = "Manutenção",
+                    timestamp = twoDaysAgo,
+                    isParcelado = true,
+                    totalInstallments = 6,
+                    installmentNumber = 1,
+                    notes = "Pneus novos para trabalhar"
+                )
+            )
+
+            repository.insertTransaction(
+                TransactionEntity(
+                    title = "Supermercado Carrefour",
+                    amount = 320.0,
+                    totalAmount = 320.0,
+                    type = "CREDIT",
+                    cardId = compCardId,
+                    category = "Alimentação",
+                    timestamp = yesterday,
+                    isParcelado = false,
+                    notes = "Compras do mês divididas"
+                )
+            )
+        }
+    }
 }
+
+@JsonClass(generateAdapter = true)
+data class CardelyBackup(
+    val cards: List<CardEntity>,
+    val transactions: List<TransactionEntity>
+)
 
 class CardelyViewModelFactory(private val repository: CardelyRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

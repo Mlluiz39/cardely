@@ -44,6 +44,15 @@ fun DashboardScreen(
     val brLocale = Locale("pt", "BR")
     val currencyFormatter = NumberFormat.getCurrencyInstance(brLocale)
 
+    var showSettingsDialog by remember { mutableStateOf(false) }
+
+    if (showSettingsDialog) {
+        SettingsDialog(
+            viewModel = viewModel,
+            onDismiss = { showSettingsDialog = false }
+        )
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -77,30 +86,50 @@ fun DashboardScreen(
                     )
                 }
 
-                // Modo Motorista Switch
+                // Modo Motorista Switch e Configurações
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                        .clickable { viewModel.toggleDriverMode() }
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = if (driverMode) Icons.Default.DirectionsCar else Icons.Default.Person,
-                        contentDescription = "Driver Mode Info",
-                        tint = if (driverMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (driverMode) "Modo Motorista" else "Modo Pessoal",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (driverMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(20.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .clickable { viewModel.toggleDriverMode() }
+                    ) {
+                        Icon(
+                            imageVector = if (driverMode) Icons.Default.DirectionsCar else Icons.Default.Person,
+                            contentDescription = "Driver Mode Info",
+                            tint = if (driverMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (driverMode) "Modo Motorista" else "Modo Pessoal",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (driverMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { showSettingsDialog = true },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(MaterialTheme.colorScheme.surface, shape = CircleShape)
+                            .testTag("dashboard_settings_btn")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Configurações",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
         }

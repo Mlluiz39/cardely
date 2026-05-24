@@ -24,4 +24,7 @@ interface CardDao {
 
     @Delete
     suspend fun deleteCard(card: CardEntity)
+
+    @Query("DELETE FROM cards")
+    suspend fun deleteAllCards()
 }

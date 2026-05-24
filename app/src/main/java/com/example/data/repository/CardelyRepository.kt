@@ -64,4 +64,17 @@ class CardelyRepository(
 
     suspend fun deleteTransaction(transaction: TransactionEntity) =
         transactionDao.deleteTransaction(transaction)
+
+    suspend fun clearAllData() {
+        cardDao.deleteAllCards()
+        transactionDao.deleteAllTransactions()
+    }
+
+    suspend fun insertCards(cards: List<CardEntity>) {
+        cards.forEach { cardDao.insertCard(it) }
+    }
+
+    suspend fun insertTransactions(transactions: List<TransactionEntity>) {
+        transactionDao.insertTransactions(transactions)
+    }
 }
